@@ -1,0 +1,32 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.define "server" do |server|
+    server.vm.box = "generic/debian12" # Latest stable Debian release
+    server.vm.hostname = "yrignyS"
+    server.vm.network "private_network", ip: "192.168.56.110"
+    server.vm.provider "virtualbox" do |v|
+      v.cpus = 2 # Minumum 2 CPUs for K3s server
+      v.memory = 2048 # Minimum 2GB RAM for K3s server
+      v.name = "yrignyS"
+    end
+    server.vm.provision "shell", inline: <<-SHELL
+    curl -sfL https://get.k3s.io | sh - # Install K3s server
+    SHELL
+  end
+
+  config.vm.define "worker" do |worker|
+    worker.vm.box = "generic/debian12"
+    worker.vm.hostname = "yrignySW"
+    worker.vm.network "private_network", ip: "192.168.56.111"
+    worker.vm.provider "virtualbox" do |v|
+      v.cpus = 1 # Minimum 1 CPU for K3s agent
+      v.memery = 512 # Minimum 512MB RAM for K3s agent
+      v.name = "yrignySW"
+    end
+    worker.vm.provision "shell", inline: <<-SHELL
+    curl -sfL https://get.k3s.io | K3S_URL=https://192.168.56.110 K3S_TOKEN=$(sshpass -p vagrant ssh -o StrictHostKeyChecking=no vagrant@https://192.168.56.110 "sudo cat /var/lib/rancher/k3s/server/node-token") sh -
+    SHELL
+  end
+end

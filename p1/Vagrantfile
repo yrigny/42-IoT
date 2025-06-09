@@ -13,6 +13,8 @@ Vagrant.configure("2") do |config|
     end
     server.vm.provision "shell", inline: <<-SHELL
     curl -sfL https://get.k3s.io | sh - # Install K3s server
+    kubectl version --client
+    echo 'hi from server'
     SHELL
   end
 
@@ -22,11 +24,14 @@ Vagrant.configure("2") do |config|
     worker.vm.network "private_network", ip: "192.168.56.111"
     worker.vm.provider "virtualbox" do |v|
       v.cpus = 1 # Minimum 1 CPU for K3s agent
-      v.memery = 512 # Minimum 512MB RAM for K3s agent
+      v.memory = 512 # Minimum 512MB RAM for K3s agent
       v.name = "yrignySW"
     end
     worker.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get update && sudo apt-get install -y sshpass
     curl -sfL https://get.k3s.io | K3S_URL=https://192.168.56.110 K3S_TOKEN=$(sshpass -p vagrant ssh -o StrictHostKeyChecking=no vagrant@https://192.168.56.110 "sudo cat /var/lib/rancher/k3s/server/node-token") sh -
+    kubectl version --client
+    echo 'hi from worker'
     SHELL
   end
 end

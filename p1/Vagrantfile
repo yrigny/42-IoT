@@ -12,8 +12,8 @@ Vagrant.configure("2") do |config|
       v.name = "yrignyS"
     end
     server.vm.provision "shell", inline: <<-SHELL
-    sudo apt-get update && sudo apt-get install -y ca-certificates curl
-    curl -sfL https://get.k3s.io | sh -
+    sudo apt-get update && sudo apt-get install -y curl
+    curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip=192.168.56.110" sh -
     echo 'export PATH=$PATH:/usr/local/bin' >> /home/vagrant/.bashrc
     echo 'alias k=kubectl' >> /home/vagrant/.bashrc
     sudo chmod 644 /etc/rancher/k3s/k3s.yaml
@@ -30,9 +30,10 @@ Vagrant.configure("2") do |config|
       v.name = "yrignySW"
     end
     worker.vm.provision "shell", inline: <<-SHELL
-    sudo apt-get update && sudo apt-get install -y sshpass ca-certificates curl
-    TOKEN=$(sshpass -p vagrant ssh -o StrictHostKeyChecking=no vagrant@192.168.56.110 "sudo cat /var/lib/rancher/k3s/server/node-token") 
-    curl -sfL https://get.k3s.io | K3S_URL=https://192.168.56.110 K3S_TOKEN=$TOKEN sh -
+    sudo apt-get update && sudo apt-get install -y sshpass curl
+    TOKEN=$(sshpass -p vagrant ssh -o StrictHostKeyChecking=no vagrant@192.168.56.110 "sudo cat /var/lib/rancher/k3s/server/node-token")
+    echo $TOKEN
+    curl -sfL https://get.k3s.io | K3S_URL=https://192.168.56.110:6443 K3S_TOKEN=$TOKEN INSTALL_K3S_EXEC="--node-ip=192.168.56.111" sh -
     echo 'export PATH=$PATH:/usr/local/bin' >> /home/vagrant/.bashrc
     SHELL
   end

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: playground
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabals: app: playground
+  template:
+    metadata:
+      labels:
+        app: playground
+    spec:
+      containers:
+        - image: https://hub.docker.com/r/wil42/playground:v1
+          name: playground
+          ports:
+            - containerPort: 80

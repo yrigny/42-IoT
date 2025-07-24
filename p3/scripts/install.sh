@@ -46,3 +46,9 @@ sudo apt-get install -y kubectl
 
 echo ">>>>>> Installing k3d package..."
 sudo curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+echo ">>>>>> Installing Argo CD CLI..."
+sudo curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+sudo rm argocd-linux-amd64
+

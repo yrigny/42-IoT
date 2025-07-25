@@ -41,6 +41,12 @@ argocd app create playground \
 	--sync-policy auto \
 	--insecure
 
+echo ">>>>>> Waiting for 'playground' pod to be ready..."
+until kubectl get pods -n dev -l app=playground -o jsonpath='{.items[0].status.containerStatuses[0].ready}' 2>/dev/null | grep -q true; do
+  echo "Pod not ready yet, sleeping..."
+  sleep 2
+done
+
 echo ">>>>>> Accessing the example app by port forwarding..."
 kubectl port-forward svc/playground -n dev 8888:8888 2>/dev/null &
 printf "\033[0;32mPF_APP_PID: $!\n\033[0m"

@@ -1,33 +1,33 @@
 #!/bin/bash
-set -euo pipefail
 
-# Optional: uncomment for debug
-# set -x
+echo ">>>>>> Removing Docker containers, images, and packages..."
+sudo docker container stop $(sudo docker ps -aq) 2>/dev/null
+sudo docker container rm $(sudo docker ps -aq) 2>/dev/null
+sudo docker image rm $(sudo docker images -q) 2>/dev/null
+sudo apt-get purge -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get autoremove -y
+sudo rm -rf /var/lib/docker /var/lib/containerd
 
-echo "🚫 Stopping Docker services if running..."
-sudo systemctl stop docker || true
-sudo systemctl stop containerd || true
-
-echo "🧼 Removing Docker packages..."
-sudo apt-get purge -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras || true
-
-echo "🗑️ Removing residual config files..."
-sudo apt-get autoremove -y --purge
-sudo apt-get clean
-
-echo "📁 Deleting Docker APT source list and keyring..."
-sudo rm -f /etc/apt/sources.list.d/docker.list
+echo ">>>>>> Removing Docker keyring and repository..."
 sudo rm -f /etc/apt/keyrings/docker.asc
+sudo rm -f /etc/apt/sources.list.d/docker.list
 
-echo "🧹 Removing Docker-related directories (excluding user volumes/images)..."
-sudo rm -rf /var/lib/docker
-sudo rm -rf /var/lib/containerd
+echo ">>>>>> Removing kubectl package..."
+sudo apt-get purge -y kubectl
+sudo apt-get autoremove -y
 
-# OPTIONAL: Uncomment if you want to remove ALL images, volumes, configs
-# echo "⚠️ Removing all Docker volumes, images, and configuration (use with caution)"
-# sudo rm -rf ~/.docker
-# sudo rm -rf /etc/docker
-# sudo rm -rf /var/run/docker.sock
+echo ">>>>>> Removing kubectl keyring and repository..."
+sudo rm -f /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+sudo rm -f /etc/apt/sources.list.d/kubernetes.list
 
-echo "✅ Docker has been completely removed."
+echo ">>>>>> Removing Argo CD CLI..."
+sudo rm -f /usr/local/bin/argocd
+
+echo ">>>>>> Removing k3d binary..."
+sudo rm -f /usr/local/bin/k3d
+
+echo ">>>>>> Cleaning up APT cache..."
+sudo apt-get update -y
+
+echo "✅ Uninstallation complete."
 

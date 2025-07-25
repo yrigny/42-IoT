@@ -4,7 +4,6 @@ metadata:
   name: playground
 spec:
   replicas: 1
-  revisionHistoryLimit: 3
   selector:
     matchLabels: 
       app: playground
@@ -25,7 +24,7 @@ metadata:
   name: playground
 spec:
   ports:
-  - port: 8080
+  - port: 8888
     targetPort: 8888
   selector:
     app: playground

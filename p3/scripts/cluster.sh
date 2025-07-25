@@ -22,7 +22,7 @@ kubectl get pods -n argocd
 
 echo ">>>>>> Accessing the Argo CD API server by port forwarding..."
 kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 2>/dev/null &
-PF_PID=$!
+printf "\033[0;32mPF_ARGOCD_PID: $!\n\033[0m"
 sleep 3
 
 echo ">>>>>> Extracting the password of admin for Argo CD..."
@@ -41,5 +41,6 @@ argocd app create playground \
 	--sync-policy auto \
 	--insecure
 
-echo ">>>>>> Cleaning up port-forwarding..."
-kill $PF_PID
+echo ">>>>>> Accessing the example app by port forwarding..."
+kubectl port-forward svc/playground -n dev 8888:8888 2>/dev/null &
+printf "\033[0;32mPF_APP_PID: $!\n\033[0m"

@@ -43,6 +43,7 @@ sudo apt-get update -y
 
 echo ">>>>>> Installing kubectl package..."
 sudo apt-get install -y kubectl
+echo 'alias k=kubectl' >> ~/.bashrc && source ~/.bashrc
 
 echo ">>>>>> Installing k3d package..."
 sudo curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash

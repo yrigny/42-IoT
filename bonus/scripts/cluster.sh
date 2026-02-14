@@ -13,7 +13,7 @@ kubectl create namespace argocd
 kubectl create namespace dev
 
 echo ">>>>>> Installing Argo CD in the k3s cluster..."
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
 
 echo ">>>>>> Waiting for Argo CD pods to be ready..."
 kubectl wait --for=condition=Available --timeout=300s -n argocd deployment/argocd-server

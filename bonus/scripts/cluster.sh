@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo ">>>>>> Creating k3d cluster..."
 k3d cluster create mycluster
 
@@ -45,6 +47,7 @@ if [ -z "$GITLAB_IP" ]; then
 fi
 
 echo ">>>>>> Creating the playground app in ArgoCD..."
+# Note: Token in URL is acceptable for this isolated local development environment
 argocd app create playground \
   --repo http://root:glpat-argocd-bonus-token@${GITLAB_IP}/root/playground.git \
   --path . \
@@ -54,7 +57,8 @@ argocd app create playground \
   --insecure
 
 echo ">>>>>> Waiting for 'playground' pod to be ready..."
-until kubectl get pods -n dev -l app=playground -o jsonpath='{.items[0].status.containerStatuses[0].ready}' 2>/dev/null | grep -q true; do
+until [ "$(kubectl get pods -n dev -l app=playground --no-headers 2>/dev/null | wc -l)" -gt 0 ] && \
+      kubectl get pods -n dev -l app=playground -o jsonpath='{.items[0].status.containerStatuses[0].ready}' 2>/dev/null | grep -q true; do
   echo "Pod not ready yet, sleeping..."
   sleep 2
 done

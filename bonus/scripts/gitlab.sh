@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo ">>>>>> Deploying GitLab CE as a Docker container..."
 docker run -d \
   --name gitlab \
@@ -54,6 +56,8 @@ else
 fi
 
 echo ">>>>>> Creating personal access token for ArgoCD..."
+# Note: Using a fixed token for simplicity in this local development environment
+# In production, use randomly generated tokens with secure storage
 docker exec gitlab gitlab-rails runner "
   token = User.find_by_username('root').personal_access_tokens.create(
     name: 'argocd-token',
@@ -67,6 +71,7 @@ docker exec gitlab gitlab-rails runner "
 
 echo ">>>>>> Token created: glpat-argocd-bonus-token"
 echo "glpat-argocd-bonus-token" > /tmp/gitlab-token
+chmod 600 /tmp/gitlab-token
 
 echo ">>>>>> Creating playground project in GitLab..."
 curl -s -H "PRIVATE-TOKEN: glpat-argocd-bonus-token" \
@@ -87,6 +92,7 @@ cd /tmp
 rm -rf playground
 git config --global user.email "argocd@bonus.local"
 git config --global user.name "ArgoCD Bonus"
+# Note: Token in URL is acceptable for this isolated local development environment
 git clone http://root:glpat-argocd-bonus-token@localhost:9080/root/playground.git
 
 cd playground

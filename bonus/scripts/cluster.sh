@@ -18,7 +18,7 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 echo ">>>>>> Waiting for Argo CD pods to be ready..."
 kubectl wait --for=condition=Available --timeout=300s -n argocd deployment/argocd-server
 kubectl wait --for=condition=Available --timeout=300s -n argocd deployment/argocd-repo-server
-kubectl wait --for=condition=Available --timeout=300s -n argocd deployment/argocd-application-controller
+kubectl wait --for=condition=Ready --timeout=300s -n argocd pod -l app.kubernetes.io/name=argocd-application-controller
 kubectl wait --for=condition=Ready --timeout=300s -n argocd pod -l app.kubernetes.io/name=argocd-redis
 
 echo ">>>>>> Checking the status of Argo CD pods..."
@@ -37,9 +37,10 @@ printf "\033[0;32mArgoCD Password: $password\n\033[0m"
 echo ">>>>>> Logging in Argo CD admin account..."
 argocd login localhost:8080 --username admin --password "$password" --insecure
 
-echo ">>>>>> Determining GitLab container IP address..."
-GITLAB_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' gitlab)
-printf "\033[0;32mGitLab IP: $GITLAB_IP\n\033[0m"
+echo ">>>>>> Connecting GitLab container to k3d network..."
+docker network connect k3d-mycluster gitlab 2>/dev/null || true
+GITLAB_IP=$(docker inspect -f '{{index .NetworkSettings.Networks "k3d-mycluster" "IPAddress"}}' gitlab)
+printf "\033[0;32mGitLab IP (k3d network): $GITLAB_IP\n\033[0m"
 
 if [ -z "$GITLAB_IP" ]; then
   echo "Error: Could not determine GitLab IP address. Is GitLab container running?"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo ">>>>>> Updating package index..."
 sudo apt-get update -y
 echo ">>>>>> Installing required dependencies..."

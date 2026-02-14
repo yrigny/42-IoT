@@ -17,8 +17,17 @@ else
 	echo "Docker GPG key already exists. Skipping download."
 fi
 
-echo ">>>>>> Adding Docker repository..."
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+echo ">>>>>> Detecting OS for Docker repository..."
+if [ -f /etc/os-release ]; then
+	. /etc/os-release
+	OS_ID=$ID
+else
+	echo "Cannot detect OS. Assuming Debian."
+	OS_ID="debian"
+fi
+
+echo ">>>>>> Adding Docker repository for $OS_ID..."
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$OS_ID \
 	$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
 	sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
@@ -34,8 +43,8 @@ sudo docker run hello-world
 
 echo ">>>>>> Setting up kubectl keyring..."
 sudo mkdir -p /etc/apt/keyrings
-sudo curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key \
-       -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+sudo curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key | \
+       sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 echo ">>>>>> Adding kubectl repository..."

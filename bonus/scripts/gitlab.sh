@@ -7,13 +7,13 @@ docker run -d \
   --name gitlab \
   --hostname gitlab.local \
   --memory 4g \
+  --shm-size 256m \
   -p 9080:80 \
   -v gitlab-data:/var/opt/gitlab \
   --restart unless-stopped \
   -e GITLAB_OMNIBUS_CONFIG="
     external_url 'http://gitlab.local';
     prometheus_monitoring['enable'] = false;
-    grafana['enable'] = false;
     alertmanager['enable'] = false;
     node_exporter['enable'] = false;
     redis_exporter['enable'] = false;
